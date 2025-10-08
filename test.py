@@ -16,7 +16,7 @@ generation_result_path = "/data2/chenxuwu/DiT-MoE-Video2Audio-v2/outputs/mel/our
 target_audio_path = "/data2/chenxuwu/DiT-MoE-Video2Audio-v2/outputs/audio_test_aligned"
 
 if __name__ == '__main__':    
-    evaluator = EvaluationHelperParallel(16000, 2, backbone="cnn14") # 使用1个GPU避免内存竞争
+    evaluator = EvaluationHelperParallel(16000, 2, backbone="mert")
     metrics = evaluator.main(
         generation_result_path,
         target_audio_path
