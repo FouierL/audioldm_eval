@@ -14,6 +14,10 @@ from audioldm_eval import calculate_fid, calculate_isc, calculate_kid, calculate
 from audioldm_eval.feature_extractors.panns import Cnn14
 from audioldm_eval.audio.tools import save_pickle, load_pickle, write_json, load_json
 from tqdm import tqdm
+import os
+
+# 设置Hugging Face镜像
+os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 
 class EvaluationHelperParallel:
     def __init__(self, sampling_rate, num_gpus, batch_size=1, backbone="mert") -> None:
@@ -39,8 +43,8 @@ class EvaluationHelperParallel:
         features_list = ["2048", "logits"]
         
         if self.backbone == "mert":
-            self.mel_model = AutoModel.from_pretrained("m-a-p/MERT-v1-95M", trust_remote_code=True)
-            self.processor = Wav2Vec2FeatureExtractor.from_pretrained("m-a-p/MERT-v1-95M",trust_remote_code=True)
+            self.mel_model = AutoModel.from_pretrained("m-a-p/MERT-v1-95M", trust_remote_code=True, use_safetensors=True)
+            self.processor = Wav2Vec2FeatureExtractor.from_pretrained("m-a-p/MERT-v1-95M", trust_remote_code=True)
             self.target_sample_rate = self.processor.sampling_rate
             self.resampler = T.Resample(orig_freq=self.sampling_rate, new_freq=self.target_sample_rate).to(self.device)
             
