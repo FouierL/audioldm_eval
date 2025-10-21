@@ -15,7 +15,7 @@ os.environ['NUMEXPR_NUM_THREADS'] = str(cpu_num)
 torch.set_num_threads(cpu_num)
 torch.multiprocessing.set_sharing_strategy('file_system')
 
-generation_result_path = "/data2/chenxuwu/DiT-MoE-Video2Audio-v2/outputs/mel/no_vae_freq_tokenizer_4_4_ep53/CFG4.5_euler_26gen_wav_16k_80"
+generation_result_path = "/data2/chenxuwu/DiT-MoE-Video2Audio-v2/outputs/mel/seqconcat_dit_moe_interleaved/CFG4.5_euler_26gen_wav_16k_80"
 target_audio_path = "/data2/chenxuwu/DiT-MoE-Video2Audio-v2/outputs/audio_test_aligned"
 
 if __name__ == '__main__':    
