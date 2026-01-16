@@ -40,23 +40,6 @@ class FrechetAudioDistance:
             )
         self.model.eval()
 
-    def load_audio_data(self, x):
-        outputloader = DataLoader(
-            WaveDataset(
-                x,
-                16000,
-                limit_num=None,
-            ),
-            batch_size=1,
-            sampler=None,
-            num_workers=8,
-        )
-        data_list = []
-        print("Loading data to RAM")
-        for batch in tqdm(outputloader):
-            data_list.append((batch[0][0,0], 16000))
-        return data_list
-
     def get_embeddings(self, x, sr=16000, limit_num=None):
         """
         Get embeddings using VGGish model.
@@ -67,23 +50,43 @@ class FrechetAudioDistance:
         -- sr   : Sampling rate, if x is a list of audio samples. Default value is 16000.
         """
         embd_lst = []
-        x = self.load_audio_data(x)
-        if isinstance(x, list): 
-            try:
+        try:
+            if isinstance(x, str):
+                outputloader = DataLoader(
+                    WaveDataset(
+                        x,
+                        16000,
+                        limit_num=limit_num,
+                    ),
+                    batch_size=1,
+                    sampler=None,
+                    num_workers=8,
+                )
+                
+                for batch in tqdm(outputloader, disable=(not self.verbose)):
+                    audio = batch[0][0, 0]
+                    embd = self.model.forward(audio.numpy(), 16000)
+                    if self.model.device == torch.device("cuda"):
+                        embd = embd.cpu()
+                    embd = embd.detach().numpy()
+                    embd_lst.append(embd)
+            
+            elif isinstance(x, list): 
                 for audio, sr in tqdm(x, disable=(not self.verbose)):
                     embd = self.model.forward(audio.numpy(), sr)
                     if self.model.device == torch.device("cuda"):
                         embd = embd.cpu()
                     embd = embd.detach().numpy()
                     embd_lst.append(embd)
-            except Exception as e:
-                print(
-                    "[Frechet Audio Distance] get_embeddings throw an exception: {}".format(
-                        str(e)
-                    )
+            else:
+                raise AttributeError
+        except Exception as e:
+            print(
+                "[Frechet Audio Distance] get_embeddings throw an exception: {}".format(
+                    str(e)
                 )
-        else:
-            raise AttributeError
+            )
+            raise e
 
         return np.concatenate(embd_lst, axis=0)
 
